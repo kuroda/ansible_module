@@ -5,7 +5,7 @@ AnsibleModule
 
 AnsibleModule is a Ruby class that provides basic functionalities as an [Ansible](http://ansible.com) module.
 
-It is distributed as a gem package under the [MIT-LICENCE](MIT-LICENSE).
+It is distributed as a gem package under the [MIT-LICENSE](MIT-LICENSE).
 
 Installation
 ------------
@@ -48,6 +48,10 @@ end
 Calc.instance.run
 ```
 
+The values of attributes `x` and `y` are set during instantiation process by `AnsibleModule`.
+
+Note that you can validate them with `validates` class method derived from `ActiveModel`.
+
 #### `calc.yml`
 
 ```yaml
@@ -73,15 +77,19 @@ require 'ansible_module'
 
 class MysqlChangeMaster < AnsibleModule
   attribute :host, String
+  attribute :port, Integer, default: 3306
   attribute :user, String
   attribute :password, String
   attribute :mysql_root_password, String
+
+  validates :port, inclusion: { in: 0..65535 }
 
   def main
     statement = %Q{
       STOP SLAVE;
       CHANGE MASTER TO
         MASTER_HOST='#{host}',
+        MASTER_PORT=#{port},
         MASTER_USER='#{user}',
         MASTER_PASSWORD='#{password}',
         MASTER_AUTO_POSITION=1;
@@ -120,4 +128,4 @@ Note that you can use methods added by `ActiveSupport` like `String#squish`.
 License
 -------
 
-AnsibleModule is distributed under the [MIT-LICENCE](MIT-LICENSE).
+AnsibleModule is distributed under the [MIT-LICENSE](MIT-LICENSE).
