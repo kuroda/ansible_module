@@ -1,6 +1,8 @@
 AnsibleModule
 =============
 
+[![Gem Version](https://badge.fury.io/rb/ansible_module.svg)](http://badge.fury.io/rb/ansible_module)
+
 AnsibleModule is a Ruby class that provides basic functionalities as an [Ansible](http://ansible.com) module.
 
 It is distributed as a gem package under the MIT license.
