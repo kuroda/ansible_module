@@ -21,12 +21,14 @@ Add the following to your Ansible playbook:
 
 Note that you should install a Ruby (2.0 or later) on your hosts.
 
-Synopsis
---------
+Example (1)
+-----------
 
-Create the following Ruby script as `library/calc`:
+### `library/calc`:
 
 ```ruby
+#!/usr/bin/ruby
+
 require 'ansible_module'
 
 class Calc < AnsibleModule
@@ -46,7 +48,7 @@ end
 Calc.instance.run
 ```
 
-Add the following to your Ansible playbook:
+#### `calc.yml`
 
 ```yaml
 - hosts: web-servers
@@ -57,6 +59,63 @@ Add the following to your Ansible playbook:
   - debug: >
       msg="sum = {{ result['sum'] }}"
 ```
+
+
+Example (2)
+-----------
+
+### `library/mysql_change_master`
+
+```ruby
+#!/usr/bin/ruby
+
+require 'ansible_module'
+
+class MysqlChangeMaster < AnsibleModule
+  attribute :host, String
+  attribute :user, String
+  attribute :password, String
+  attribute :mysql_root_password, String
+
+  def main
+    statement = %Q{
+      STOP SLAVE;
+      CHANGE MASTER TO
+        MASTER_HOST='#{host}',
+        MASTER_USER='#{user}',
+        MASTER_PASSWORD='#{password}',
+        MASTER_AUTO_POSITION=1;
+      START SLAVE;
+    }.squish
+
+    command = %Q{
+      /usr/bin/mysql -u root -p#{mysql_root_password} -e "#{statement}"
+    }.squish
+
+    system(command)
+
+    exit_json(statement: statement, changed: true)
+  end
+end
+
+MysqlChangeMaster.instance.run
+```
+
+Note that you can use methods added by `ActiveSupport` like `String#squish`.
+
+### `slave.yml`
+
+```yaml
+- hosts: mysql-slave
+  tasks:
+  - name: Change master to the db1
+    mysql: >
+      host="db1"
+      user="repl"
+      password="{{ mysql_repl_password }}"
+      mysql_root_password="{{ mysql_root_password }}"
+```
+
 
 License
 -------
