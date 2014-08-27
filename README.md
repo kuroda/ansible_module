@@ -5,7 +5,7 @@ AnsibleModule
 
 AnsibleModule is a Ruby class that provides basic functionalities as an [Ansible](http://ansible.com) module.
 
-It is distributed as a gem package under the MIT license.
+It is distributed as a gem package under the [MIT-LICENCE](MIT-LICENSE).
 
 Installation
 ------------
@@ -120,4 +120,4 @@ Note that you can use methods added by `ActiveSupport` like `String#squish`.
 License
 -------
 
-AnsibleModule is distributed under the MIT license. ([MIT-LICENCE](MIT-LICENCE))
+AnsibleModule is distributed under the [MIT-LICENCE](MIT-LICENSE).
