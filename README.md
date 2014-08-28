@@ -149,6 +149,8 @@ Then, create a file named `replication.yml` as follows:
 
 ```yaml
 - hosts: mysql-slave
+  vars_files:
+    - shared/secret.yml
   tasks:
   - name: Change master to the db1
     mysql: >
@@ -158,10 +160,26 @@ Then, create a file named `replication.yml` as follows:
       mysql_root_password="{{ mysql_root_password }}"
 ```
 
+Next, create a file named `secret.yml` on the `shared` directory as follows:
+
+```secret.yml
+mysql_repl_password: p@ssw0rd
+mysql_root_password: p@ssw0rd
+```
+
+Note that you should replace `p@ssw0rd` with real passwords.
+
 And run the following command on your local host:
 
 ```
 $ ansible-playbook -i hosts replication.yml
+```
+
+You might want to encrypt the `secret.yml` with [ansible-vault](http://docs.ansible.com/playbooks_vault.html).
+In that case, you must add `--ask-vault-pass` option to the above command:
+
+```
+$ ansible-playbook -i hosts --ask-vault-pass replication.yml
 ```
 
 
