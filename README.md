@@ -17,7 +17,8 @@ Install Ruby (2.0 or later) and `ansible_module` gem on your *remote* hosts.
 The following is a typical procedure on Ubuntu Server 14.04:
 
 ```
-$ sudo add-apt-repository ppa:brightbox/ruby-ng
+$ sudo add-apt-repository -y ppa:brightbox/ruby-ng
+$ sudo apt-get update
 $ sudo apt-get -y install ruby2.1
 $ sudo gem install ansible_module
 ```
