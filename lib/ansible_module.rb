@@ -16,7 +16,7 @@ class AnsibleModule
     if valid?
       main
     else
-      fail_json(msg: errors.full_messages.join(' '))
+      invalid_json
     end
   rescue StandardError => e
     fail_json(msg: "Failed: #{e.to_s}")
@@ -36,6 +36,12 @@ class AnsibleModule
     hash[:msg] ||= "No error message."
     print JSON.dump(hash)
     exit 1
+  end
+
+  def invalid_json
+    message = 'Invalid parameters: '
+    message += errors.full_messages.map { |m| "#{m}." }.join(' ')
+    fail_json(msg: message)
   end
 
   class << self
