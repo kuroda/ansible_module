@@ -19,7 +19,7 @@ The following is a typical procedure on Ubuntu Server 14.04:
 ```
 $ sudo add-apt-repository -y ppa:brightbox/ruby-ng
 $ sudo apt-get update
-$ sudo apt-get -y install ruby2.1
+$ sudo apt-get -y install ruby2.1 ruby2.1-dev
 $ sudo gem install ansible_module
 ```
 
@@ -37,6 +37,8 @@ The following is an example for Ubuntu Server 14.04:
     apt_repository: repo='ppa:brightbox/ruby-ng' state=present
   - name: Install ruby 2.1
     apt: name=ruby2.1 state=present
+  - name: Install ruby 2.1 headers
+    apt: name=ruby2.1-dev state=present
   - name: Install ansible_module gem
     gem: name=ansible_module user_install=false state=present
 ```
@@ -52,6 +54,8 @@ In the above example, the `hosts` file is an [inventory](http://docs.ansible.com
 
 Example (1)
 -----------
+
+### Module
 
 Create a file named `calc` on the `library` directory as follows:
 
@@ -81,6 +85,8 @@ The values of attributes `x` and `y` are set during instantiation process by `An
 
 Note that you can validate them with `validates` class method derived from `ActiveModel`.
 
+### Playbook
+
 Then, create a file named `calc.yml` as follows:
 
 ```yaml
@@ -102,6 +108,8 @@ $ ansible-playbook -i hosts calc.yml
 
 Example (2)
 -----------
+
+### Module
 
 Create a file named `mysql_change_master` on the `library` directory as follows:
 
@@ -145,6 +153,8 @@ MysqlChangeMaster.instance.run
 ```
 
 Note that you can use methods added by `ActiveSupport` like `String#squish`.
+
+### Playbook
 
 Then, create a file named `replication.yml` as follows:
 
