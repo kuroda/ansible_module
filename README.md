@@ -52,8 +52,8 @@ $ ansible-playbook -i hosts ruby_environment.yml
 In the above example, the `hosts` file is an [inventory](http://docs.ansible.com/intro_inventory.html) which lists up host names or IP addresses.
 
 
-Example (1)
------------
+Example (1) -- Simple Calculation
+---------------------------------
 
 ### Module
 
@@ -106,8 +106,40 @@ $ ansible-playbook -i hosts calc.yml
 ```
 
 
-Example (2)
------------
+Example (2) -- MySQL 5.6 Replication Management
+-----------------------------------------------
+
+### Prerequisites
+
+Install MySQL 5.6 Server, MySQL 5.6 Client, MySQL 5.6 development files and `mysql2` gem.
+
+The following is a typical procedure on Ubuntu Server 14.04:
+
+```
+$ sudo add-apt-repository -y ppa:ondrej/mysql-5.6
+$ sudo apt-get update
+$ sudo apt-get -y install mysql-server-5.6 mysql-client-5.6 libmysqlclient-dev
+$ sudo gem install mysql2
+```
+
+You can also install them with the following playbook:
+
+```yaml
+- hosts: servers
+  sudo: yes
+  tasks:
+  - name: Add ppa for mysql 5.6
+    apt_repository: repo='ppa:ondrej/mysql-5.6' state=present
+  - name: Install mysql server 5.6
+    apt: name=mysql-server-5.6 state=present
+  - name: Install mysql client 5.6
+    apt: name=mysql-client-5.6 state=present
+  - name: Install libmysqlclient-dev
+    apt: name=libmysqlclient-dev state=present
+  - name: Install mysql2 gem
+    gem: name=mysql2 user_install=false state=present
+```
+
 
 ### Module
 
@@ -117,6 +149,7 @@ Create a file named `mysql_change_master` on the `library` directory as follows:
 #!/usr/bin/ruby
 
 require 'ansible_module'
+require 'mysql2'
 
 class MysqlChangeMaster < AnsibleModule
   attribute :host, String
@@ -128,24 +161,50 @@ class MysqlChangeMaster < AnsibleModule
   validates :port, inclusion: { in: 0..65535 }
 
   def main
+    done? && exit_json(changed: false)
+
     statement = %Q{
-      STOP SLAVE;
       CHANGE MASTER TO
         MASTER_HOST='#{host}',
         MASTER_PORT=#{port},
         MASTER_USER='#{user}',
         MASTER_PASSWORD='#{password}',
-        MASTER_AUTO_POSITION=1;
-      START SLAVE;
+        MASTER_AUTO_POSITION=1
     }.squish
 
-    command = %Q{
-      /usr/bin/mysql -u root -p#{mysql_root_password} -e "#{statement}"
-    }.squish
+    mysql_client.query('STOP SLAVE')
+    mysql_client.query(statement)
+    mysql_client.query('START SLAVE')
+    sleep(1)
 
-    system(command)
+    if done?
+      exit_json(statement: statement, changed: true)
+    else
+      fail_json(msg: "Last Error: #{@last_error}")
+    end
+  end
 
-    exit_json(statement: statement, changed: true)
+  def done?
+    status = mysql_client.query('SHOW SLAVE STATUS').first || {}
+
+    @last_error = [ status['Last_IO_Error'], status['Last_SQL_Error'] ].compact.join(' ').squish
+
+    status['Master_Host'] == host &&
+      status['Master_User'] == user &&
+      status['Master_Port'].to_i == port &&
+      status['Auto_Position'].to_i == 1 &&
+      status['Slave_IO_State'] != '' &&
+      status['Last_IO_Error'] == '' &&
+      status['Last_SQL_Error'] == ''
+  end
+
+  def mysql_client
+    @client ||= Mysql2::Client.new(
+      host: 'localhost',
+      username: 'root',
+      password: mysql_root_password,
+      encoding: 'utf8'
+    )
   end
 end
 
