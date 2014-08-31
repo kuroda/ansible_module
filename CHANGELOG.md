@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.9.2 (2014-08-31)
+
+* Add initial RSpec examples.
+
 ## 0.9.1 (2014-08-28)
 
 * Add private method `AnsibleModule#invalid_json` to improve the message on

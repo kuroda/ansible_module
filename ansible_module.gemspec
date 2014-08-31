@@ -1,4 +1,4 @@
-version = File.read(File.expand_path("../VERSION", __FILE__)).strip
+version = File.read(File.expand_path("VERSION", File.dirname(__FILE__))).strip
 
 Gem::Specification.new do |s|
   s.name        = "ansible_module"
@@ -7,8 +7,8 @@ Gem::Specification.new do |s|
   s.email       = "t-kuroda@oiax.jp"
   s.homepage    = "https://github.com/kuroda/ansible_module"
   s.description = "AnsibleModule is a Ruby class that provides basic functionalities as an Ansible module."
-  s.summary     = "AnsibleModule class for Ruby language."
-  s.license     = 'MIT'
+  s.summary     = "A Ruby base class for Ansible module."
+  s.license     = "MIT"
 
   s.required_ruby_version = ">= 2.0.0"
 
