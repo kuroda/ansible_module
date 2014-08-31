@@ -4,11 +4,29 @@ require 'calc'
 
 describe AnsibleModule do
   context 'Calc module' do
-    context '.instance' do
+    before do
+      Calc.instance_variable_set(:@instance, nil)
+      Calc.instance_variable_set(:@params, nil)
+    end
+
+    describe '.instance' do
       it 'should return a singleton instance of Calc class' do
         instance = Calc.instance
         expect(instance).to be_kind_of(Calc)
         expect(instance).to equal(Calc.instance)
+      end
+    end
+
+    describe '.params' do
+      it 'should return a hash constructed from a temp file' do
+        fh = double('File Handler', read: 'x=100 y=100')
+        allow(File).to receive(:open).and_yield(fh)
+
+        p = Calc.params
+
+        expect(p).to be_kind_of(Hash)
+        expect(p[:x]).to eq('100')
+        expect(p[:y]).to eq('100')
       end
     end
 

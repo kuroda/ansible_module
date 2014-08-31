@@ -53,7 +53,7 @@ class AnsibleModule
       return @params if @params
       @params = ActiveSupport::HashWithIndifferentAccess.new
       File.open(ARGV[0]) do |fh|
-        fh.read().shellsplit.each do |word|
+        fh.read.shellsplit.each do |word|
           (key, value) = word.split('=', 2)
           @params[key] = value
         end
