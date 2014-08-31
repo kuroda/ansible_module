@@ -47,7 +47,6 @@ class AnsibleModule
   class << self
     def instance
       @instance ||= new(params)
-      @instance
     end
 
     def params

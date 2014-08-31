@@ -4,6 +4,14 @@ require 'calc'
 
 describe AnsibleModule do
   context 'Calc module' do
+    context '.instance' do
+      it 'should return a singleton instance of Calc class' do
+        instance = Calc.instance
+        expect(instance).to be_kind_of(Calc)
+        expect(instance).to equal(Calc.instance)
+      end
+    end
+
     context 'Validation success' do
       let(:instance) { Calc.new(x: '100', y: '100') }
       before { allow(instance).to receive(:exit) }
