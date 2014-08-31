@@ -19,42 +19,46 @@ describe AnsibleModule do
 
     describe '.params' do
       it 'should return a hash constructed from a temp file' do
-        fh = double('File Handler', read: 'x=100 y=100')
+        fh = double('File Handler', read: 'x=100 y=50')
         allow(File).to receive(:open).and_yield(fh)
 
         p = Calc.params
 
         expect(p).to be_kind_of(Hash)
         expect(p[:x]).to eq('100')
-        expect(p[:y]).to eq('100')
+        expect(p[:y]).to eq('50')
       end
     end
 
     context 'Validation success' do
-      let(:instance) { Calc.new(x: '100', y: '100') }
+      let(:instance) { Calc.new(x: '100', y: '50') }
+      before { allow(instance).to receive(:print) }
       before { allow(instance).to receive(:exit) }
 
-      it 'should print result in the json form' do
-        expect { instance.run }.to output(%r{"sum":200}).to_stdout
+      it 'should print sum in JSON format' do
+        instance.run
+        expect(instance).to have_received(:print).with(%r{"sum":150})
+        expect(instance).to have_received(:print).with(%r{"changed":true})
       end
 
       it 'should exit with 0' do
-        allow(instance).to receive(:print)
         instance.run
         expect(instance).to have_received(:exit).with(0)
       end
     end
 
     context 'Validation failure' do
-      let(:instance) { Calc.new(x: '', y: '100') }
+      let(:instance) { Calc.new(x: '', y: '50') }
+      before { allow(instance).to receive(:print) }
       before { allow(instance).to receive(:exit) }
 
-      it 'should print result in the json form' do
-        expect { instance.run }.to output(%r{X can\'t be blank\.}).to_stdout
+      it 'should print validation error message in JSON format' do
+        instance.run
+        expect(instance).to have_received(:print).with(%r{X can\'t be blank\.})
+        expect(instance).to have_received(:print).with(%r{"failed":true})
       end
 
       it 'should exit with 1' do
-        allow(instance).to receive(:print)
         instance.run
         expect(instance).to have_received(:exit).with(1)
       end
