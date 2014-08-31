@@ -24,25 +24,25 @@ class AnsibleModule
 
   private
 
-  def exit_json(hash)
-    hash = ActiveSupport::HashWithIndifferentAccess.new(hash)
-    print JSON.dump(hash)
-    exit 0
-  end
+    def exit_json(hash)
+      hash = ActiveSupport::HashWithIndifferentAccess.new(hash)
+      print JSON.dump(hash)
+      exit 0
+    end
 
-  def fail_json(hash)
-    hash = ActiveSupport::HashWithIndifferentAccess.new(hash)
-    hash[:failed] = true
-    hash[:msg] ||= "No error message."
-    print JSON.dump(hash)
-    exit 1
-  end
+    def fail_json(hash)
+      hash = ActiveSupport::HashWithIndifferentAccess.new(hash)
+      hash[:failed] = true
+      hash[:msg] ||= "No error message."
+      print JSON.dump(hash)
+      exit 1
+    end
 
-  def invalid_json
-    message = 'Invalid parameters: '
-    message += errors.full_messages.map { |m| "#{m}." }.join(' ')
-    fail_json(msg: message)
-  end
+    def invalid_json
+      message = 'Invalid parameters: '
+      message += errors.full_messages.map { |m| "#{m}." }.join(' ')
+      fail_json(msg: message)
+    end
 
   class << self
     def instance
