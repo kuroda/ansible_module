@@ -66,10 +66,9 @@ require 'ansible_module'
 
 class Calc < AnsibleModule
   attribute :x, Integer
-  attribute :y, Integer, default: 100
+  attribute :y, Integer
 
-  validates :x, presence: true, numericality: { only_integer: true }
-  validates :y, numericality: { only_integer: true }
+  validates :x, :y, presence: true, numericality: { only_integer: true }
 
   def main
     sum = x + y
@@ -85,9 +84,16 @@ The values of attributes `x` and `y` are set during instantiation process by `An
 
 Note that you can validate them with `validates` class method derived from `ActiveModel`.
 
+The class method `instance` returns a singleton instance of `Calc` class,
+and its `run` method calls the `main` method if validations are successful.
+
+So, the author of an Ansible module must implement the `main` method at least.
+
+
 ### Playbook
 
-Then, create a file named `calc.yml` as follows:
+Now, you can use the `calc` module in your playbook.
+For example, create a file named `calc.yml` as follows:
 
 ```yaml
 - hosts: servers
@@ -95,11 +101,10 @@ Then, create a file named `calc.yml` as follows:
   - name: Make a calculation
     calc: x=50 y=50
     register: result
-  - debug: >
-      msg="sum = {{ result['sum'] }}"
+  - debug: msg="sum = {{ result['sum'] }}"
 ```
 
-And run the following command on your local host:
+Then, run the following command on your local host:
 
 ```
 $ ansible-playbook -i hosts calc.yml
@@ -158,7 +163,9 @@ class MysqlChangeMaster < AnsibleModule
   attribute :password, String
   attribute :mysql_root_password, String
 
+  validates :host, :user, :password, presence: true
   validates :port, inclusion: { in: 0..65535 }
+  validates :password, maximum: 32
 
   def main
     done? && exit_json(changed: false)
@@ -184,28 +191,31 @@ class MysqlChangeMaster < AnsibleModule
     end
   end
 
-  def done?
-    status = mysql_client.query('SHOW SLAVE STATUS').first || {}
+  private
 
-    @last_error = [ status['Last_IO_Error'], status['Last_SQL_Error'] ].compact.join(' ').squish
+    def done?
+      status = mysql_client.query('SHOW SLAVE STATUS').first || {}
 
-    status['Master_Host'] == host &&
-      status['Master_User'] == user &&
-      status['Master_Port'].to_i == port &&
-      status['Auto_Position'].to_i == 1 &&
-      status['Slave_IO_State'] != '' &&
-      status['Last_IO_Error'] == '' &&
-      status['Last_SQL_Error'] == ''
-  end
+      @last_error = [ status['Last_IO_Error'], status['Last_SQL_Error'] ]
+        .compact.join(' ').squish
 
-  def mysql_client
-    @client ||= Mysql2::Client.new(
-      host: 'localhost',
-      username: 'root',
-      password: mysql_root_password,
-      encoding: 'utf8'
-    )
-  end
+      status['Master_Host'] == host &&
+        status['Master_User'] == user &&
+        status['Master_Port'].to_i == port &&
+        status['Auto_Position'].to_i == 1 &&
+        status['Slave_IO_State'] != '' &&
+        status['Last_IO_Error'] == '' &&
+        status['Last_SQL_Error'] == ''
+    end
+
+    def mysql_client
+      @client ||= Mysql2::Client.new(
+        host: 'localhost',
+        username: 'root',
+        password: mysql_root_password,
+        encoding: 'utf8'
+      )
+    end
 end
 
 MysqlChangeMaster.instance.run
