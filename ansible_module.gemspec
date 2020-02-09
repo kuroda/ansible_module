@@ -12,12 +12,12 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = ">= 2.0.0"
 
-  s.add_runtime_dependency "json", "~> 1.8.1"
-  s.add_runtime_dependency "virtus", "~> 1.0.3"
-  s.add_runtime_dependency "activesupport", "~> 4.1.5"
-  s.add_runtime_dependency "activemodel", "~> 4.1.5"
+  s.add_runtime_dependency "json", ">= 1.8.1"
+  s.add_runtime_dependency "virtus", ">= 1.0.3"
+  s.add_runtime_dependency "activesupport", ">= 4.1.5"
+  s.add_runtime_dependency "activemodel", ">= 4.1.5"
 
-  s.add_development_dependency "rspec", "~> 3.0.0"
+  s.add_development_dependency "rspec", ">= 3.0.0"
 
   s.files = %w(README.md CHANGELOG.md MIT-LICENSE VERSION) + Dir.glob("lib/**/*")
 end
