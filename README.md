@@ -61,6 +61,7 @@ Create a file named `calc` on the `library` directory as follows:
 
 ```ruby
 #!/usr/bin/ruby
+# WANT_JSON
 
 require 'ansible_module'
 
@@ -152,6 +153,7 @@ Create a file named `mysql_change_master` on the `library` directory as follows:
 
 ```ruby
 #!/usr/bin/ruby
+# WANT_JSON
 
 require 'ansible_module'
 require 'mysql2'
