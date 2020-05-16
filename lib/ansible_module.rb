@@ -1,4 +1,3 @@
-require 'shellwords'
 require 'json'
 require 'virtus'
 require 'active_support/all'
@@ -53,12 +52,8 @@ class AnsibleModule
       return @params if @params
       @params = ActiveSupport::HashWithIndifferentAccess.new
       File.open(ARGV[0]) do |fh|
-        fh.read.shellsplit.each do |word|
-          (key, value) = word.split('=', 2)
-          @params[key] = value
-        end
+        @params.update JSON.parse(fh.read())
       end
-      @params
     end
   end
 end
